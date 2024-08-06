@@ -13,9 +13,8 @@ class DisplayFolder:
         
         return pd.DataFrame(columns=columns)
         
-    def process_display_folder(self, rbid: str, df: pd.DataFrame):
-        
-        item = self.api_service.get_fold_rbid(rbid)
+    def process_display_folder(self, wsid: str, rbid: str, item: list, df: pd.DataFrame):
+       
 
         if not isinstance(item['relationships'].get('parent'), dict):
             pid = "Parent"
@@ -23,14 +22,23 @@ class DisplayFolder:
             subf = "-----"
         else:
             pid = ['relationships']['parent']['data']['id']
-            par = self.api_service.get_foider_id(pid)
-            parf = par['attributes']['name']
+            parf = self.find_folder_name(wsid,pid)
             subf = item['attributes']['name']
             
         df = self.append_displayfolder_data(item: list, pid: str, parf: str, 
                                             subf: str, df: pd.Dataframe)
             
+    def find_folder_name(self, wsid: str, fid: str):
+        nfn = "None"
+        items = self.get_folders_by_workspaceid(wsid)
+        for item in items:
+            if item['id'] == fid:
+                return item['attributes']['name']
+            
+        return nfn
+            
 
+        
     def append_displayfolder_data(self, item: list, pid: str, parf: str,
                                   subf: str, df: pd.DataFrame):
             
