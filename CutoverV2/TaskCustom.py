@@ -14,36 +14,23 @@ class TaskCustom:
        
         
         if item['attributes']['custom_field_values'] != {}:
+           newRow = self.create_new_taskcustom()
            customFields = item['attributes']['custom_field_values']
            for field in customFields:
-               df = self.append_taskcustom_data(rbid, item['id'], field, df) 
-        
+               newRow = self.add_taskcustom_value(newRow, field)
+               
+        if newRow['Tool'] != 'none':
+            newRow['Runbook Id'] = rbid
+            newRow['Task Id'] = item['id']
+            df = self.append_taskcustom_data(newRow, df)
+            
         return df
         
-    def append_taskcustom_data(self, rbid: str, tid: str, field: list, df: pd.DataFrame):
-        
+    def append_taskcustom_data(self, newRow: dict, df: pd.DataFrame):
+             
+        return pd.concat([df, pd.DataFrame([newRow])], ignore_index=True)
 
-        newRow = {
-            'Runbook Id': rbid,
-            'Task Id': tid, 
-            'Tool': '',
-            'Task': '',
-            'Action': '',
-            'IStatus': '',
-            'PStatus': '',
-            'BStatus': '',
-            'GStatus': '',
-            'Requested': '',
-            'Coordinated': '',
-            'Job': '',
-            'Path': '',
-            'Host': '',
-            'Env': '',
-            'CRQ': '',
-            'INC': '',
-            'Ratio': '',
-            'TID': ''
-        }
+    def add_taskcustom_value(newRow: dict, field: list):
         
         if field['name'] == '[AOBlade]TaskTechnologyTool':
             newRow['Tool'] = field['value']
@@ -69,7 +56,7 @@ class TaskCustom:
             newRow['Path'] = field['value']
         elif field['name'] == '[AOBlade]HostName':
             newRow['Host'] = field['value']
-        elif field['name'] == '[AOBlade]Environment':
+        elif field['name'] == '[AOBlade]Environment': 
             newRow['Env'] = field['value']
         elif field['name'] == '[AOBlade]CRQID':
             newRow['CRQ'] = field['value']
@@ -79,11 +66,34 @@ class TaskCustom:
             newRow['Ratio'] = field['value']
         elif field['name'] == '[AOAnsible]TemplateID':
             newRow['TID'] = field['value']
-
-
-       
-        return pd.concat([df, pd.DataFrame([newRow])], ignore_index=True)
-
+            
+        return newRow
+            
+    def create_new_taskcustom(self):
+        
+        none = 'none'
+        newRow = {
+            'Runbook Id': '',
+            'Task Id': '', 
+            'Tool': none,
+            'Task': '',
+            'Action': '',
+            'IStatus': '',
+            'PStatus': '',
+            'BStatus': '',
+            'GStatus': '',
+            'Requested': '',
+            'Coordinated': '',
+            'Job': '',
+            'Path': '',
+            'Host': '',
+            'Env': '',
+            'CRQ': '',
+            'INC': '',
+            'Ratio': '',
+            'TID': ''
+        }    
+        return newRow
 
 
 
